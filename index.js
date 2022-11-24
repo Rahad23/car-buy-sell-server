@@ -3,6 +3,7 @@ const app =express();
 const cors = require('cors');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { query } = require('express');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
 
@@ -16,7 +17,9 @@ const userCollection = client.db("userCollection").collection("user");
 const carQuality = client.db("carQuelity").collection("carquelity");
 const bmwCollection = client.db("bmwCollection").collection("bmw");
 const audiCollection = client.db("audiCollaction").collection("audi");
+const astonCollection = client.db("astonMartin").collection("aston");
 
+// user store database
 app.post('/users', async(req, res)=>{
     try{
     const data = req.body;
@@ -27,6 +30,18 @@ app.post('/users', async(req, res)=>{
     catch(e){
         console.log(e.message);
     }
+})
+// user information get database
+app.get('/users/:email', async(req, res)=>{
+   try{
+    const email = req.params.email;
+    const query = {email: email};
+    const result = await userCollection.findOne(query);
+    res.send(result);
+   }
+   catch(e){
+    console.log(e.message);
+   }
 })
 
 app.get('/carQuality', async(req, res)=>{
@@ -57,12 +72,33 @@ app.get('/bmwDetail/:id', async(req,res)=>{
     const result = await bmwCollection.findOne(query);
     res.send(result);
 })
+
 // audi section
 app.get('/audi', async(req, res)=>{
     const query = {};
     const result = await audiCollection.find(query).toArray();
     res.send(result);
 })
+app.get('/audi/:id', async(req, res)=>{
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)};
+    const result= await audiCollection.findOne(query);
+    res.send(result);
+})
+
+// aston martin
+app.get('/astonMartin', async(req, res)=>{
+    const query = {};
+    const result = await astonCollection.find(query).toArray();
+    res.send(result);
+})
+app.get('/astonMartin/:id', async(req, res)=>{
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)};
+    const result = await astonCollection.findOne(query);
+    res.send(result);
+})
+
 
 app.get('/', (req, res)=>{
     res.send('server is running') 
