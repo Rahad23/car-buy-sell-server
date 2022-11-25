@@ -18,6 +18,7 @@ const carQuality = client.db("carQuelity").collection("carquelity");
 const bmwCollection = client.db("bmwCollection").collection("bmw");
 const audiCollection = client.db("audiCollaction").collection("audi");
 const astonCollection = client.db("astonMartin").collection("aston");
+const orderCollection = client.db("buyerOrder").collection("order");
 
 // user store database
 app.post('/users', async(req, res)=>{
@@ -65,7 +66,12 @@ app.get('/bmw', async(req, res)=>{
         console.log(e.message);
     }
 })
-
+// add bmw data database
+app.post('/bmw', async(req, res)=>{
+    const data = req.body;
+    const result = await bmwCollection.insertOne(data);
+    res.send(result);
+})
 app.get('/bmwDetail/:id', async(req,res)=>{
     const id = req.params.id;
     const query = {_id: ObjectId(id)};
@@ -77,6 +83,12 @@ app.get('/bmwDetail/:id', async(req,res)=>{
 app.get('/audi', async(req, res)=>{
     const query = {};
     const result = await audiCollection.find(query).toArray();
+    res.send(result);
+})
+// add audi data in database
+app.post('/audi', async(req, res)=>{
+    const data = req.body;
+    const result = await audiCollection.insertOne(data);
     res.send(result);
 })
 app.get('/audi/:id', async(req, res)=>{
@@ -92,6 +104,12 @@ app.get('/astonMartin', async(req, res)=>{
     const result = await astonCollection.find(query).toArray();
     res.send(result);
 })
+// add astonMartin data in database
+app.post('/astonMartin', async(req, res)=>{
+    const data = req.body;
+    const result = await astonCollection.insertOne(data);
+    res.send(result);
+})
 app.get('/astonMartin/:id', async(req, res)=>{
     const id = req.params.id;
     const query = {_id: ObjectId(id)};
@@ -99,6 +117,28 @@ app.get('/astonMartin/:id', async(req, res)=>{
     res.send(result);
 })
 
+// buyer order save data base
+app.post('/buyerOrder', async(req, res)=>{
+    const data = req.body;
+    const result = await orderCollection.insertOne(data);
+    res.send(result);
+})
+
+// my order get api
+app.get('/myOrder/:email', async(req, res)=>{
+    const email = req.params.email;
+    const query = {buyerEmail: email}
+    const result = await orderCollection.find(query).toArray();
+    res.send(result);
+})
+
+// order delete
+app.delete('/myOrder/:id', async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)};
+    const result = await orderCollection.deleteOne(query);
+    res.send(result);
+});
 
 app.get('/', (req, res)=>{
     res.send('server is running') 
