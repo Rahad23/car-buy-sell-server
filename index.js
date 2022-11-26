@@ -20,7 +20,7 @@ const bmwCollection = client.db("bmwCollection").collection("bmw");
 const audiCollection = client.db("audiCollaction").collection("audi");
 const astonCollection = client.db("astonMartin").collection("aston");
 const orderCollection = client.db("buyerOrder").collection("order");
-// const myProductCollection = client.db("myProduct").collection("product");
+const advertisementCollection = client.db("advertisement").collection("advertise");
 
 // verify jwt token valid user
 function verifyJwt(req, res, next){
@@ -139,7 +139,7 @@ app.get('/bmwDetail/:id', async(req,res)=>{
 // audi section
 app.get('/audi', verifyJwt, async(req, res)=>{
     const query = {};
-    const result = await audiCollection.find(query).toArray();
+    const result = await audiCollection.find(query).toArray(); 
     res.send(result);
 })
 // add audi data in database
@@ -226,6 +226,12 @@ app.delete('/buyerOrder/:id', async(req, res)=>{
 
 // my order get api
 app.get('/myOrder/:email', verifyJwt,async(req, res)=>{
+    //  const decodeEmail = req.decoded.email;
+    // const querys = {userEmail: decodeEmail};
+    // const user = await orderCollection.findOne(querys);
+    // if(user?.role !== 'admin'){
+    //     return res.status(403).send({message: "forbidden access"})
+    // }
     const email = req.params.email;
     const query = {buyerEmail: email}
     const result = await orderCollection.find(query).toArray();
@@ -251,12 +257,7 @@ app.delete('/myOrder/:id', async(req,res)=>{
 // admin api create
 app.put('/adminCreate/:id', async(req, res)=>{
     const userId = req.params.id;
-    // const decodeEmail = req.decoded.email;
-    // const query = {userEmail: decodeEmail};
-    // const user = await orderCollection.findOne(query);
-    // if(user?.role !== 'admin'){
-    //     return res.status(403).send({message: "forbidden access"})
-    // }
+   
     const filter = {_id: ObjectId(userId)};
     const options = {upsert: true};
     const updatedDoc = {
@@ -265,6 +266,19 @@ app.put('/adminCreate/:id', async(req, res)=>{
         }
     }
     const result = await userCollection.updateOne(filter, updatedDoc, options);
+    res.send(result);
+})
+
+// advertisement api
+app.post('/advertise', async(req, res)=>{
+    const data = req.body;
+    const result = await advertisementCollection.insertOne(data);  
+    res.send(result);
+})
+// advertisement product get api
+app.get('/advertise', verifyJwt, async(req, res)=>{
+    const query = {};
+    const result = await advertisementCollection.find(query).toArray();
     res.send(result);
 })
 
