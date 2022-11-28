@@ -256,7 +256,7 @@ app.put('/myOrderPayment/:id', async(req, res)=>{
         }
     }
 
-    const result =  await orderCollection.updateOne(filter, updatedDoc, options);
+    const result = await orderCollection.updateOne(filter, updatedDoc, options);
     res.send(result);
 })
 // order fiend id
@@ -275,16 +275,11 @@ app.delete('/myOrder/:id', async(req,res)=>{
 });
 
 
-// my all product
-// app.post('/myProduct', async(req, res)=>{
-//     const data = req.body;
-//     const result= await myProductCollection.insertMany(data);
-//     res.send(result);
-// })
 
 // admin api create
 app.put('/adminCreate/:id', async(req, res)=>{
-    const userId = req.params.id;
+    const userId = req.params.id
+    ;
    
     const filter = {_id: ObjectId(userId)};
     const options = {upsert: true};
