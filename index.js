@@ -7,9 +7,16 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { query } = require('express');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SK_KEY);
 
 // midle ware
-app.use(cors());
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204,
+    "Access-Control-Allow-Origin":" http://localhost:3000"
+  }));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@cluster0.xa1zyf9.mongodb.net/?retryWrites=true&w=majority`;
@@ -21,7 +28,7 @@ const audiCollection = client.db("audiCollaction").collection("audi");
 const astonCollection = client.db("astonMartin").collection("aston");
 const orderCollection = client.db("buyerOrder").collection("order");
 const advertisementCollection = client.db("advertisement").collection("advertise");
-
+// advertisement.advertise
 // verify jwt token valid user
 function verifyJwt(req, res, next){
     const authorize = req.headers.authorization;
@@ -237,7 +244,26 @@ app.get('/myOrder/:email', verifyJwt,async(req, res)=>{
     const result = await orderCollection.find(query).toArray();
     res.send(result);
 })
-
+app.put('/myOrderPayment/:id', async(req, res)=>{
+    const id = req.params.id;
+    console.log(id);
+    const filter = {_id: ObjectId(id)};
+    const options = {upsert: true}; 
+    const updatedDoc = {
+        $set:{
+            pay: 'success'
+        }
+    }
+    const result = await orderCollection.updateOne(filter, updatedDoc, options);
+    res.send(result);
+})
+// order fiend id
+app.get('/payment/:id', verifyJwt,async(req, res)=>{
+    const id = req.params.id;
+    const query = {_id:ObjectId(id)};
+    const result = await orderCollection.findOne(query);
+    res.send(result);
+})
 // order delete
 app.delete('/myOrder/:id', async(req,res)=>{
     const id = req.params.id;
@@ -272,7 +298,7 @@ app.put('/adminCreate/:id', async(req, res)=>{
 // advertisement api
 app.post('/advertise', async(req, res)=>{
     const data = req.body;
-    const result = await advertisementCollection.insertOne(data);  
+    const result = await advertisementCollection.insertOne(data); 
     res.send(result);
 })
 // advertisement product get api
@@ -280,6 +306,32 @@ app.get('/advertise', verifyJwt, async(req, res)=>{
     const query = {};
     const result = await advertisementCollection.find(query).toArray();
     res.send(result);
+})
+// delete advertisement
+app.delete('/delete/:id', async(req, res)=>{
+    const id = req.params.id;
+    console.log(id);
+    const query = {_id: id};
+    const result = await advertisementCollection.deleteOne(query);
+    res.send(result);
+})
+
+// add stripe 
+app.post('/create-payment-intent', async(req, res)=>{
+    const data = req.body;
+    const price = data.price;
+    const convertSent = price * 100;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+        currency: "usd",
+        amount: convertSent,
+        payment_method_types: [
+            "card"
+          ],
+    });
+    res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
 })
 
 app.get('/', (req, res)=>{
