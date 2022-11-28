@@ -244,6 +244,7 @@ app.get('/myOrder/:email', verifyJwt,async(req, res)=>{
     const result = await orderCollection.find(query).toArray();
     res.send(result);
 })
+
 app.put('/myOrderPayment/:id', async(req, res)=>{
     const id = req.params.id;
     console.log(id);
@@ -254,7 +255,8 @@ app.put('/myOrderPayment/:id', async(req, res)=>{
             pay: 'success'
         }
     }
-    const result = await orderCollection.updateOne(filter, updatedDoc, options);
+
+    const result =  await orderCollection.updateOne(filter, updatedDoc, options);
     res.send(result);
 })
 // order fiend id
