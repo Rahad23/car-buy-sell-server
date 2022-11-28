@@ -278,8 +278,7 @@ app.delete('/myOrder/:id', async(req,res)=>{
 
 // admin api create
 app.put('/adminCreate/:id', async(req, res)=>{
-    const userId = req.params.id
-    ;
+    const userId = req.params.id;
    
     const filter = {_id: ObjectId(userId)};
     const options = {upsert: true};
